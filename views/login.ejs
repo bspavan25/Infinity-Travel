@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">Infinity Travel</a></h1>
+    </header>
+    <h2 style="text-align: center">Login to Infinity Travel</h2>
+
+    <div class="container">
+      <div class="form-box">
+        <form action="/login" method="post" id="loginForm">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+
+          <input type="submit" value="Login" />
+        </form>
+      </div>
+      <div id="error-message">
+        <!-- Error messages will be injected here with JavaScript -->
+      </div>
+    </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const error = urlParams.get("error");
+
+      if (error) {
+        document.getElementById("error-message").innerText =
+          "Invalid username or password";
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infinity Travel</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Infinity Travel</a></h1>
+    </header>
+
+    <nav id="top-nav">
+      <% if (!isAuthenticated) { %>
+      <div>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+      </div>
+      <% } else { %>
+      <div>
+        Welcome <%= username %> :) |
+        <a href="/favorites">Favorite Places</a> |
+        <!-- Added Favorite Places Link -->
+        <a href="/logout">Logout</a>
+      </div>
+      <% } %>
+    </nav>
+
+    <main class="home-container">
+      <section class="intro">
+        <div class="intro-text">
+          <h2>Explore The World With Us</h2>
+          <p>
+            Welcome to Infinity Travel, your number one source for all things
+            travel. We're dedicated to providing you the best of travel, with a
+            focus on dependability, customer service, and uniqueness.
+          </p>
+        </div>
+        <img src="/images/2.jpeg" alt="Travel Image 2" />
+      </section>
+    </main>
+  </body>
+</html>
