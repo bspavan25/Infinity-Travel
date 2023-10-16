@@ -143,3 +143,75 @@ input[type="submit"]:hover {
     margin-bottom: 20px;
   }
 }
+
+.flights-list {
+  margin-top: 20px;
+}
+
+.flight-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flight-info p {
+  margin: 5px 0;
+}
+
+.btn {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #555;
+}
+
+.success-page {
+  text-align: center;
+  padding: 50px;
+}
+
+.success-page h2 {
+  color: green;
+  margin-bottom: 20px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  color: white;
+  background-color: #333;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background-color: #555;
+}
+
+.inline-form {
+  display: inline;
+}
+
+.btn-small {
+  padding: 5px 10px;
+  font-size: 0.8em;
+}
+
+.sort-buttons {
+  margin-bottom: 20px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #999;
+  margin-left: 10px;
+}

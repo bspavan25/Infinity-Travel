@@ -4,14 +4,13 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Infinity Travel</title>
+    <title>Flight Results</title>
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
   <body>
     <header>
       <h1><a href="/">Infinity Travel</a></h1>
     </header>
-
     <nav id="top-nav">
       <% if (!isAuthenticated) { %>
       <div>
@@ -27,23 +26,11 @@
       </div>
       <% } %>
     </nav>
-
-    <main class="home-container">
-      <section class="intro">
-        <div class="intro-text">
-          <h2>Explore The World With Us</h2>
-          <p>
-            Welcome to Infinity Travel, your number one source for all things
-            travel. We're dedicated to providing you the best of travel, with a
-            focus on dependability, customer service, and uniqueness.
-          </p>
-          <% if (isAuthenticated) { %>
-          <a href="/search-flights" class="btn">Search Flights</a>
-          <a href="/favorites" class="btn">Favorite Places</a>
-          <% } %>
-        </div>
-        <img src="/images/2.jpeg" alt="Travel Image 2" />
-      </section>
+    <main class="container">
+      <h2>Customer Support</h2>
+      <p>Email: Support@infinitytravel.com</p>
+      <p>Phone: 800-555-5555</p>
+      <p>Hours: M-F 8:00AM - 5:00PM EST</p>
     </main>
   </body>
 </html>

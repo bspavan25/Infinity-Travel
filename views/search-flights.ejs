@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Flights</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <!-- jQuery UI CSS -->
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">Infinity Travel</a></h1>
+    </header>
+
+    <nav id="top-nav">
+      <div>
+        <% if (isAuthenticated) { %> Welcome, <%= username %> |
+        <a href="/logout">Logout</a> |
+        <a href="/favorites">Favorite Places</a>
+        <% } else { %>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+        <% } %>
+      </div>
+    </nav>
+
+    <h2 style="text-align: center">Search Flights</h2>
+
+    <div class="container">
+      <div class="form-box">
+        <form action="/search-results" method="post">
+          <label for="departure">Departure Airport:</label>
+          <input type="text" id="departure" name="departure" required />
+
+          <label for="destination">Destination Airport:</label>
+          <input type="text" id="destination" name="destination" required />
+
+          <label for="date">Departure Date:</label>
+          <input type="date" id="date" name="date" required />
+
+          <label for="travelers">Number of Travelers:</label>
+          <input
+            type="number"
+            id="travelers"
+            name="travelers"
+            min="1"
+            required
+          />
+
+          <label for="coupon">Coupon Code:</label>
+          <input type="text" id="coupon" name="coupon" />
+
+          <input type="submit" value="Search Flights" />
+        </form>
+      </div>
+      <div id="error-message">
+        <!-- Error messages will be injected here with JavaScript -->
+      </div>
+    </div>
+
+    <!-- jQuery and jQuery UI JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <script>
+      $(function () {
+        var availableAirports = ["ALB", "BOS", "JFK", "LAX"];
+        $("#departure, #destination").autocomplete({
+          source: availableAirports,
+        });
+      });
+    </script>
+  </body>
+</html>

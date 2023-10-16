@@ -64,7 +64,6 @@ passport.deserializeUser((id, done) => {
 app.use(express.static("public"));
 
 // Routes
-
 app.get("/", (req, res) => {
   res.render("index", {
     isAuthenticated: req.isAuthenticated(),
@@ -78,7 +77,23 @@ app.get("/register", (req, res) => {
 
 app.get("/favorites", (req, res) => {
   if (req.isAuthenticated()) {
-    res.sendFile(__dirname + "/views/favorites.html");
+    const userId = req.user.id;
+    const query = "SELECT * FROM favorite_places WHERE user_id = ?";
+
+    db.all(query, userId, (err, favoritePlaces) => {
+      if (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .send("An error occurred while retrieving favorite places");
+      }
+
+      res.render("favorites", {
+        favoritePlaces,
+        isAuthenticated: req.isAuthenticated(),
+        username: req.user.name, // Ensure that 'name' is included here
+      });
+    });
   } else {
     res.redirect("/login");
   }
@@ -121,6 +136,109 @@ app.get("/logout", function (req, res) {
     }
     res.redirect("/");
   });
+});
+
+app.get("/search-flights", (req, res) => {
+  res.render("search-flights", {
+    isAuthenticated: req.isAuthenticated(),
+    username: req.user ? req.user.name : "", // Make sure you have 'name' in your user object
+  });
+});
+
+app.post("/search-results", (req, res) => {
+  const { departure, destination, date, travelers, sort } = req.body;
+
+  let query = `
+        SELECT * FROM flights 
+        WHERE departure_airport = ? 
+          AND destination_airport = ? 
+          AND departure_date = ? 
+          AND available_seats >= ?
+    `;
+
+  if (sort === "asc") {
+    query += " ORDER BY price ASC";
+  } else if (sort === "desc") {
+    query += " ORDER BY price DESC";
+  }
+
+  db.all(query, [departure, destination, date, travelers], (err, flights) => {
+    if (err) throw err;
+
+    const discount = req.body.coupon === "VTSTUDENT" ? 0.5 : 1;
+
+    res.render("flight-results", {
+      flights,
+      departure, // added
+      destination, // added
+      date, // added
+      travelers,
+      discount,
+      coupon: req.body.coupon,
+      isAuthenticated: req.isAuthenticated(),
+      username: req.isAuthenticated() ? req.user.name : "",
+    });
+  });
+});
+
+app.post("/book-flight/:flightId", (req, res) => {
+  if (req.isAuthenticated()) {
+    const flightId = req.params.flightId;
+    const userId = req.user.id;
+    const numberOfTravelers = req.body.numberOfTravelers;
+
+    const query =
+      "INSERT INTO bookings (user_id, flight_id, number_of_travelers) VALUES (?, ?, ?)";
+    db.run(query, [userId, flightId, numberOfTravelers], (err) => {
+      if (err) throw err;
+      res.redirect("/booking-success"); // You may need to create this success page or redirect to another existing page.
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/booking-success", (req, res) => {
+  res.render("booking-success");
+});
+
+app.post("/save-favorite/:destination", (req, res) => {
+  if (req.isAuthenticated()) {
+    const placeName = req.params.destination;
+
+    const query =
+      "INSERT INTO favorite_places (user_id, place_name) VALUES (?, ?)";
+    db.run(query, [req.user.id, placeName], (err) => {
+      if (err) throw err;
+      res.redirect("/search-flights");
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/favorites", (req, res) => {
+  if (req.isAuthenticated()) {
+    const query = "SELECT * FROM favorite_places WHERE user_id = ?";
+    db.all(query, req.user.id, (err, favoritePlaces) => {
+      if (err) throw err;
+      res.render("favorites", { favoritePlaces });
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/customer-support", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("customer-support", {
+      isAuthenticated: req.isAuthenticated(),
+      username: req.user.name, // Ensure that 'name' is included here
+    });
+  } else {
+    // Optional: Redirect to login if the user is not authenticated and trying to access the customer support page
+    res.redirect("/login");
+  }
 });
 
 app.listen(3000, () => {

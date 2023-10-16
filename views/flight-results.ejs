@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flight Results</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">Infinity Travel</a></h1>
+    </header>
+    <nav id="top-nav">
+      <% if (!isAuthenticated) { %>
+      <div>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+      </div>
+      <% } else { %>
+      <div>
+        Welcome <%= username %> :) |
+        <a href="/customer-support">Customer Support</a> |
+        <a href="/logout">Logout</a>
+      </div>
+      <% } %>
+    </nav>
+    <main class="container">
+      <h2>Flight Results</h2>
+      <div class="sort-buttons">
+        <form action="/search-results" method="post">
+          <input type="hidden" name="departure" value="<%= departure %>" />
+          <input type="hidden" name="destination" value="<%= destination %>" />
+          <input type="hidden" name="date" value="<%= date %>" />
+          <input type="hidden" name="travelers" value="<%= travelers %>" />
+          <input type="hidden" name="sort" value="asc" />
+          <button type="submit" class="btn-small">
+            <i class="fas fa-sort-amount-down-alt"></i> Sort by Price Ascending
+          </button>
+        </form>
+        <form action="/search-results" method="post">
+          <input type="hidden" name="departure" value="<%= departure %>" />
+          <input type="hidden" name="destination" value="<%= destination %>" />
+          <input type="hidden" name="date" value="<%= date %>" />
+          <input type="hidden" name="travelers" value="<%= travelers %>" />
+          <input type="hidden" name="sort" value="desc" />
+          <button type="submit" class="btn-small">
+            <i class="fas fa-sort-amount-up-alt"></i> Sort by Price Descending
+          </button>
+        </form>
+      </div>
+
+      <% if (flights.length > 0) { %>
+      <div class="flights-list">
+        <% flights.forEach(flight => { %>
+        <div class="flight-item">
+          <div class="flight-info">
+            <p><strong>Departure:</strong> <%= flight.departure_airport %></p>
+            <p>
+              <strong>Destination:</strong> <%= flight.destination_airport %>
+            </p>
+            <p><strong>Date:</strong> <%= flight.departure_date %></p>
+            <p>
+              <strong>Available Seats:</strong> <%= flight.available_seats %>
+            </p>
+            <p>
+              <strong>Price:</strong> $<%= (flight.price * discount).toFixed(2)
+              %> <% if (coupon === 'VTSTUDENT') { %>
+              <span class="original-price"
+                >$<%= flight.price.toFixed(2) %></span
+              >
+              <% } %>
+            </p>
+          </div>
+          <div class="book-flight">
+            <form action="/book-flight/<%= flight.id %>" method="post">
+              <input
+                type="hidden"
+                name="numberOfTravelers"
+                value="<%= travelers %>"
+              />
+              <button type="submit" class="btn">Book Now</button>
+            </form>
+            <br />
+            <form
+              action="/save-favorite/<%= flight.destination_airport %>"
+              method="post"
+              class="inline-form"
+            >
+              <button type="submit" class="btn-icon">
+                <i class="fas fa-heart"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+      <% } else { %>
+      <p>No flights found. Please try again with different criteria.</p>
+      <% } %>
+    </main>
+  </body>
+</html>
