@@ -4,6 +4,8 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const session = require("express-session");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
+const bodyParser = require("body-parser");
 
 const app = express();
 app.set("view engine", "ejs");
@@ -53,13 +55,20 @@ passport.use(
 
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
-  db.get("SELECT id, name, email FROM users WHERE id = ?", id, (err, row) => {
-    // Updated to include name
-    if (err) return done(err);
-    return done(null, { id: row.id, name: row.name, email: row.email }); // Updated to include name
-  });
+  db.get(
+    "SELECT id, name, email, role FROM users WHERE id = ?",
+    id,
+    (err, row) => {
+      if (err) return done(err);
+      return done(null, {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        role: row.role,
+      });
+    }
+  );
 });
-
 // Static files
 app.use(express.static("public"));
 
@@ -68,6 +77,7 @@ app.get("/", (req, res) => {
   res.render("index", {
     isAuthenticated: req.isAuthenticated(),
     username: req.isAuthenticated() ? req.user.name : "", // Updated to use name
+    user: req.user,
   });
 });
 
@@ -146,37 +156,62 @@ app.get("/search-flights", (req, res) => {
 });
 
 app.post("/search-results", (req, res) => {
-  const { departure, destination, date, travelers, sort } = req.body;
+  const {
+    departure,
+    destination,
+    date,
+    travelers,
+    sort,
+    airlineFilter,
+    coupon,
+  } = req.body;
 
   let query = `
-        SELECT * FROM flights 
-        WHERE departure_airport = ? 
-          AND destination_airport = ? 
-          AND departure_date = ? 
-          AND available_seats >= ?
-    `;
+    SELECT * FROM flights 
+    WHERE departure_airport = ? 
+      AND destination_airport = ? 
+      AND departure_date = ? 
+      AND available_seats >= ?
+  `;
+
+  if (airlineFilter && airlineFilter !== "all") {
+    query += ` AND airline = '${airlineFilter}' `;
+  }
 
   if (sort === "asc") {
     query += " ORDER BY price ASC";
   } else if (sort === "desc") {
     query += " ORDER BY price DESC";
+  } else if (sort === "stopsAsc") {
+    query += " ORDER BY number_of_stops ASC";
+  } else if (sort === "stopsDesc") {
+    query += " ORDER BY number_of_stops DESC";
   }
 
   db.all(query, [departure, destination, date, travelers], (err, flights) => {
     if (err) throw err;
 
-    const discount = req.body.coupon === "VTSTUDENT" ? 0.5 : 1;
+    // Check if the coupon code exists in the coupons table
+    const couponQuery =
+      "SELECT discount_amount FROM coupons WHERE coupon_text = ?";
+    db.get(couponQuery, [coupon], (err, row) => {
+      if (err) throw err;
 
-    res.render("flight-results", {
-      flights,
-      departure, // added
-      destination, // added
-      date, // added
-      travelers,
-      discount,
-      coupon: req.body.coupon,
-      isAuthenticated: req.isAuthenticated(),
-      username: req.isAuthenticated() ? req.user.name : "",
+      // If coupon is found, use the discount_amount, else use 1 (no discount)
+      const discount = row ? 1 - row.discount_amount / 100 : 1;
+      console.log(discount);
+
+      res.render("flight-results", {
+        flights,
+        departure,
+        destination,
+        date,
+        travelers,
+        discount,
+        coupon,
+        isAuthenticated: req.isAuthenticated(),
+        username: req.isAuthenticated() ? req.user.name : "",
+      });
     });
   });
 });
@@ -202,28 +237,20 @@ app.get("/booking-success", (req, res) => {
   res.render("booking-success");
 });
 
-app.post("/save-favorite/:destination", (req, res) => {
+app.post("/save-favorite", (req, res) => {
   if (req.isAuthenticated()) {
-    const placeName = req.params.destination;
+    const { departure, destination, date, travelers } = req.body;
 
     const query =
-      "INSERT INTO favorite_places (user_id, place_name) VALUES (?, ?)";
-    db.run(query, [req.user.id, placeName], (err) => {
-      if (err) throw err;
-      res.redirect("/search-flights");
-    });
-  } else {
-    res.redirect("/login");
-  }
-});
-
-app.get("/favorites", (req, res) => {
-  if (req.isAuthenticated()) {
-    const query = "SELECT * FROM favorite_places WHERE user_id = ?";
-    db.all(query, req.user.id, (err, favoritePlaces) => {
-      if (err) throw err;
-      res.render("favorites", { favoritePlaces });
-    });
+      "INSERT INTO favorite_places (user_id, place_name, departure, date, travelers) VALUES (?, ?, ?, ?, ?)";
+    db.run(
+      query,
+      [req.user.id, destination, departure, date, travelers],
+      (err) => {
+        if (err) throw err;
+        res.redirect("/favorites");
+      }
+    );
   } else {
     res.redirect("/login");
   }
@@ -238,6 +265,83 @@ app.get("/customer-support", (req, res) => {
   } else {
     // Optional: Redirect to login if the user is not authenticated and trying to access the customer support page
     res.redirect("/login");
+  }
+});
+
+//sharing trip part
+let transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "2017076@iiitdmj.ac.in", // replace with your email
+    pass: "bsp9493518359", // replace with your password
+  },
+});
+
+// POST route for sending emails
+app.post("/send-email", (req, res) => {
+  const { toEmail, subject, text } = req.body;
+
+  const mailOptions = {
+    from: "2017076@iiitdmj.ac.in", // replace with your email
+    to: toEmail,
+    subject: subject,
+    text: text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error("Error sending email:", error);
+      res.status(500).send("Failed to send email.");
+    } else {
+      res.send("Email sent successfully.");
+    }
+  });
+});
+
+app.get("/notifications", (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect("/login");
+  }
+  res.render("notifications", {
+    isAuthenticated: true,
+    username: req.user.username,
+  });
+});
+
+// Admin Panel Route
+app.get("/admin", (req, res) => {
+  if (req.isAuthenticated() && req.user.role === "admin") {
+    res.render("admin-panel", { username: req.user.name });
+  } else {
+    res.status(403).send("Unauthorized");
+  }
+});
+
+// Add Coupon Route
+app.post("/admin/add-coupon", (req, res) => {
+  if (req.isAuthenticated() && req.user.role === "admin") {
+    const {
+      discountAmount,
+      expirationDate,
+      couponText,
+      applicableUsers,
+      specificUserEmail,
+    } = req.body;
+    let applicableTo = applicableUsers === "all" ? "all" : specificUserEmail;
+    db.run(
+      "INSERT INTO coupons (discount_amount, expiration_date, coupon_text, applicable_users) VALUES (?, ?, ?, ?)",
+      [discountAmount, expirationDate, couponText, applicableTo],
+      (err) => {
+        if (err) {
+          console.error(err.message);
+          res.status(500).send("Failed to add coupon");
+        } else {
+          res.redirect("/admin");
+        }
+      }
+    );
+  } else {
+    res.status(403).send("Unauthorized");
   }
 });
 

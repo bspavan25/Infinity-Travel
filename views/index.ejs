@@ -22,6 +22,11 @@
       <div>
         Welcome <%= username %> :) |
         <!-- Added Search Flights Link -->
+        <a href="/notifications" class="notification-icon">🔔</a> | <% if (
+        user.role === 'admin') { %>
+        <a href="/admin">Admin Panel</a>
+        <% } %>
+
         <a href="/customer-support">Customer Support</a> |
         <a href="/logout">Logout</a>
       </div>

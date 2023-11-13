@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications - Infinity Travel</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      .notification-container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f7f7f7;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .notification-item {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+      }
+
+      .notification-item:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Infinity Travel</a></h1>
+    </header>
+
+    <nav id="top-nav">
+      <% if (!isAuthenticated) { %>
+      <div>
+        <a href="/register">Register</a>
+        <a href="/login">Login</a>
+      </div>
+      <% } else { %>
+      <div>
+        Welcome <%= username %> :) |
+        <!-- Added Search Flights Link -->
+        <a href="/notifications" class="notification-icon">🔔</a> |
+
+        <a href="/customer-support">Customer Support</a> |
+        <a href="/logout">Logout</a>
+      </div>
+      <% } %>
+    </nav>
+
+    <main class="notification-container">
+      <h2>Notifications</h2>
+      <div class="notification-item">
+        Your flight to Paris has been confirmed!
+      </div>
+      <div class="notification-item">
+        Check out the new deals for flights to Tokyo!
+      </div>
+      <!-- Add more hardcoded notifications as needed -->
+    </main>
+  </body>
+</html>

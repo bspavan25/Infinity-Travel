@@ -4,9 +4,37 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Flight Results</title>
+    <title>Favorite Places</title>
     <link rel="stylesheet" href="/css/styles.css" />
+    <style>
+      .favorite-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .favorite-item {
+        flex: 1;
+        border: 1px solid #e0e0e0;
+        padding: 15px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .favorite-details {
+        flex: 2;
+      }
+
+      .favorite-actions {
+        flex: 1;
+        display: flex;
+        gap: 10px;
+      }
+    </style>
   </head>
+
   <body>
     <header>
       <h1><a href="/">Infinity Travel</a></h1>
@@ -20,7 +48,6 @@
       <% } else { %>
       <div>
         Welcome <%= username %> :) |
-        <!-- Added Search Flights Link -->
         <a href="/customer-support">Customer Support</a> |
         <a href="/logout">Logout</a>
       </div>
@@ -28,11 +55,60 @@
     </nav>
     <main class="container">
       <h2>Your Favorite Places</h2>
-      <ul>
+      <div class="favorite-container">
         <% favoritePlaces.forEach(place => { %>
-        <li><%= place.place_name %></li>
+        <div class="favorite-item">
+          <div class="favorite-details">
+            <strong>Destination:</strong> <%= place.place_name %><br />
+            <strong>Departure:</strong> <%= place.departure %><br />
+            <strong>Date:</strong> <%= place.date %><br />
+          </div>
+          <div class="favorite-actions">
+            <form action="/send-email" method="POST" class="email-form">
+              <input
+                type="hidden"
+                name="subject"
+                value="Check out my favorite places!"
+              />
+              <input
+                type="hidden"
+                name="text"
+                value="Hey, check out this amazing place <%= place.place_name %> I've marked as my favorite on Infinity-Travel!"
+              />
+              <label for="toEmail" placeholder="Share with:"></label>
+              <input
+                type="email"
+                placeholder="Enter frnds email"
+                name="toEmail"
+                required
+              />
+              <button type="submit">Share</button>
+            </form>
+            <form action="/search-results" method="post" class="inline-form">
+              <input
+                type="hidden"
+                name="departure"
+                value="<%= place.departure %>"
+              />
+              <input
+                type="hidden"
+                name="destination"
+                value="<%= place.place_name %>"
+              />
+              <input type="hidden" name="date" value="<%= place.date %>" />
+              <input
+                type="hidden"
+                name="travelers"
+                value="<%= place.travelers %>"
+              />
+              <button type="submit" class="btn-small">Look-----</button>
+              <button type="submit" class="btn-small">For------</button>
+              <button type="submit" class="btn-small">Flights--</button>
+            </form>
+          </div>
+        </div>
         <% }); %>
-      </ul>
+      </div>
     </main>
   </body>
 </html>

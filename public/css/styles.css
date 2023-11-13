@@ -215,3 +215,11 @@ input[type="submit"]:hover {
   color: #999;
   margin-left: 10px;
 }
+
+.notification-icon {
+  font-size: 24px;
+  cursor: pointer;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}

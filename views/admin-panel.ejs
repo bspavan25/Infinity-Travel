@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Infinity Travel</a></h1>
+    </header>
+    <nav id="top-nav">
+      <div>
+        Welcome <%= username %> :) |
+        <a href="/logout">Logout</a>
+      </div>
+    </nav>
+    <main class="container">
+      <h2>Admin Panel</h2>
+      <form action="/admin/add-coupon" method="post">
+        <label for="discountAmount">Discount Amount ($):</label>
+        <input type="number" name="discountAmount" required />
+        <label for="expirationDate">Expiration Date:</label>
+        <input type="date" name="expirationDate" required />
+        <label for="couponText">Coupon Text:</label>
+        <input type="text" name="couponText" required />
+        <label for="applicableUsers">Applicable Users:</label>
+        <select name="applicableUsers" required>
+          <option value="all">All Users</option>
+          <option value="specific">Specific User</option>
+        </select>
+        <label for="specificUserEmail" style="display: none"
+          >Specific User Email:</label
+        >
+        <input type="email" name="specificUserEmail" style="display: none" />
+        <button type="submit">Add Coupon</button>
+      </form>
+    </main>
+    <script>
+      const applicableUsersSelect = document.querySelector(
+        'select[name="applicableUsers"]'
+      );
+      const specificUserEmailInput = document.querySelector(
+        'input[name="specificUserEmail"]'
+      );
+      const specificUserEmailLabel = document.querySelector(
+        'label[for="specificUserEmail"]'
+      );
+      applicableUsersSelect.addEventListener("change", function () {
+        if (this.value === "specific") {
+          specificUserEmailInput.style.display = "block";
+          specificUserEmailLabel.style.display = "block";
+        } else {
+          specificUserEmailInput.style.display = "none";
+          specificUserEmailLabel.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>
