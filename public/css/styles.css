@@ -128,6 +128,22 @@ input[type="submit"]:hover {
   box-shadow: none;
 }
 
+.recommendations {
+  justify-content: space-between;
+  padding: 50px 20px;
+  background-color: #f0f0f0;
+  width: 100%;
+}
+
+.link-style {
+  color: inherit;
+  text-decoration: none;
+}
+
+.link-style:hover {
+  color: inherit;
+}
+
 @media (max-width: 768px) {
   .intro {
     flex-direction: column;

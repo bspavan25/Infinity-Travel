@@ -74,11 +74,32 @@ app.use(express.static("public"));
 
 // Routes
 app.get("/", (req, res) => {
-  res.render("index", {
-    isAuthenticated: req.isAuthenticated(),
-    username: req.isAuthenticated() ? req.user.name : "", // Updated to use name
-    user: req.user,
-  });
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+    const query = "SELECT DISTINCT flights.destination_airport AS name FROM bookings INNER JOIN flights ON bookings.flight_id = flights.id WHERE bookings.user_id = ?";
+    db.all(query, userId, (err, userDestinations) => {
+      if (err) {
+        console.error(err);
+        return res
+            .status(500)
+            .send("An error occurred while retrieving userDestinations");
+      }
+      res.render("index", {
+        isAuthenticated: req.isAuthenticated(),
+        username: req.isAuthenticated() ? req.user.name : "", // Updated to use name
+        user: req.user,
+        userDestinations: userDestinations,
+      });
+    });
+  }
+  else {
+    res.render("index", {
+      isAuthenticated: req.isAuthenticated(),
+      username: "",
+      user: null,
+      userDestinations: null,
+    });
+  }
 });
 
 app.get("/register", (req, res) => {
