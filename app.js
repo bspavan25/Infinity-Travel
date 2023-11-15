@@ -76,28 +76,47 @@ app.use(express.static("public"));
 app.get("/", (req, res) => {
   if (req.isAuthenticated()) {
     const userId = req.user.id;
-    const query = "SELECT DISTINCT flights.destination_airport AS name FROM bookings INNER JOIN flights ON bookings.flight_id = flights.id WHERE bookings.user_id = ?";
-    db.all(query, userId, (err, userDestinations) => {
+    // Query to get user destinations
+    const destinationsQuery =
+      "SELECT DISTINCT flights.destination_airport AS name FROM bookings INNER JOIN flights ON bookings.flight_id = flights.id WHERE bookings.user_id = ?";
+    // Query to calculate reward points
+    const rewardsQuery =
+      "SELECT SUM(number_of_travelers) AS totalTravelers FROM bookings WHERE user_id = ?";
+
+    db.all(destinationsQuery, userId, (err, userDestinations) => {
       if (err) {
         console.error(err);
         return res
-            .status(500)
-            .send("An error occurred while retrieving userDestinations");
+          .status(500)
+          .send("An error occurred while retrieving userDestinations");
       }
-      res.render("index", {
-        isAuthenticated: req.isAuthenticated(),
-        username: req.isAuthenticated() ? req.user.name : "", // Updated to use name
-        user: req.user,
-        userDestinations: userDestinations,
+      // If no error, proceed to get reward points
+      db.get(rewardsQuery, userId, (err, rewardsResult) => {
+        if (err) {
+          console.error(err);
+          return res
+            .status(500)
+            .send("An error occurred while calculating reward points");
+        }
+        // Calculate reward points (assuming 100 points per traveler)
+        const rewardPoints = (rewardsResult.totalTravelers || 0) * 100;
+
+        res.render("index", {
+          isAuthenticated: req.isAuthenticated(),
+          username: req.user.name,
+          user: req.user,
+          userDestinations: userDestinations,
+          rewardPoints: rewardPoints, // Pass reward points to the view
+        });
       });
     });
-  }
-  else {
+  } else {
     res.render("index", {
       isAuthenticated: req.isAuthenticated(),
       username: "",
       user: null,
       userDestinations: null,
+      rewardPoints: 0,
     });
   }
 });

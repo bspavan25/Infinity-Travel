@@ -50,18 +50,31 @@
         <img src="/images/2.jpeg" alt="Travel Image 2" />
       </section>
 
-      <% if (userDestinations && userDestinations.length > 0) { %>
-        <section class="recommendations">
-          <h3>Recommendations</h3>
-          <p>Our trustworthy recommendations based on your bookings</p>
-            <% userDestinations.forEach((destination) => { %>
-            <h3><%= destination.name %></h3>
-            <ul>
-              <li><a href="#" class="link-style">Hotels near <%= destination.name %></a></li>
-              <li><a href="#" class="link-style">Car rentals near <%= destination.name %></a></li>
-            </ul>
-            <% }); %>
-        </section>
+      <% if (user) { %>
+      <section class="user-rewards">
+        <h3>Reward Points</h3>
+        <p>You have <%= rewardPoints %> points</p>
+      </section>
+      <% } %> <% if (userDestinations && userDestinations.length > 0) { %>
+      <section class="recommendations">
+        <h3>Recommendations</h3>
+        <p>Our trustworthy recommendations based on your bookings</p>
+        <% userDestinations.forEach((destination) => { %>
+        <h3><%= destination.name %></h3>
+        <ul>
+          <li>
+            <a href="#" class="link-style"
+              >Hotels near <%= destination.name %></a
+            >
+          </li>
+          <li>
+            <a href="#" class="link-style"
+              >Car rentals near <%= destination.name %></a
+            >
+          </li>
+        </ul>
+        <% }); %>
+      </section>
       <% } %>
     </main>
   </body>
